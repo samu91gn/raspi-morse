@@ -1,0 +1,136 @@
+#!/bin/bash
+
+#script to be executed like this: morsescript "sentence to be morsefied"
+
+INPUTPAR=$1
+
+#set mode to output
+gpio mode 0 out;
+
+echo You chose to morsefy the sentence: ${INPUTPAR};
+
+SPLIT_ARR=($(echo "$INPUTPAR"|grep -o .))
+
+SLEEP_TIME_DOT="0.1";
+SLEEP_TIME_LINE="0.3" #$((3*$SLEEP_TIME_UNIT));
+SLEEP_TIME_PAUSE="0.3" #$((3*$SLEEP_TIME_UNIT));
+SLEEP_TIME_WORD="0.7" #$((7*$SLEEP_TIME_UNIT));
+LED_PIN=0;
+
+raspi-beep(){
+	(speaker-test -t sine -c 2 -s 2 -f $1 & TASK_PID=$! ; sleep $2 ; kill -s SIGINT $TASK_PID) > /dev/null
+}
+
+dot(){
+	#start dot
+	gpio write $LED_PIN 1;
+	raspi-beep 440 $SLEEP_TIME_DOT
+	sleep $SLEEP_TIME_DOT;
+	gpio write $LED_PIN 0;
+	sleep $SLEEP_TIME_PAUSE;
+	
+	#end dot
+}
+
+line(){
+	#start line
+	gpio write $LED_PIN 1;
+	raspi-beep 440 $SLEEP_TIME_LINE
+	sleep $SLEEP_TIME_LINE;
+	gpio write $LED_PIN 0;
+	sleep $SLEEP_TIME_PAUSE;
+	#end line
+}
+
+wordpause(){
+	sleep $SLEEP_TIME_WORD;
+}
+
+
+for ((j=0; j < ${#INPUTPAR}; j++)) #i in ${SPLIT_ARR[@]}
+do
+	i="${INPUTPAR:$j:1}";
+	echo morseing letter $i;
+	if [ "$i" = " " ]
+	then 
+		wordpause;
+	elif [ "${i^^}" = "A" ];
+	then
+		dot;line;
+	elif [ "${i^^}" = "B" ]
+	then
+		line;dot;dot;dot;
+	elif [ "${i^^}" = "C" ]
+	then
+		line;dot;line;dot;
+	elif [ "${i^^}" = "D" ]
+	then
+		line;dot;dot;
+	elif [ "${i^^}" = "E" ]
+	then
+		dot;
+	elif [ "${i^^}" = "F" ]
+	then
+		dot;dot;line;dot;
+	elif [ "${i^^}" = "G" ]
+	then
+		line;line;dot;
+	elif [ "${i^^}" = "H" ]
+	then
+		dot;dot;dot;dot;
+	elif [ "${i^^}" = "I" ]
+	then
+		dot;dot;
+	elif [ "${i^^}" = "J" ]
+	then
+		dot;line;line;line;
+	elif [ "${i^^}" = "K" ]
+	then
+		line;dot;line;
+	elif [ "${i^^}" = "L" ]
+	then
+		dot;line;dot;dot;
+	elif [ "${i^^}" = "M" ]
+	then
+		line;line;
+	elif [ "${i^^}" = "N" ]
+	then
+		line;dot;
+	elif [ "${i^^}" = "O" ]
+	then
+		line;line;line;
+	elif [ "${i^^}" = "P" ]
+	then
+		dot;line;line;dot;
+	elif [ "${i^^}" = "Q" ]
+	then
+		line;line;dot;line;
+	elif [ "${i^^}" = "R" ]
+	then
+		dot;line;dot;
+	elif [ "${i^^}" = "S" ]
+	then
+		dot;dot;dot;
+	elif [ "${i^^}" = "T" ]
+	then
+		line;
+	elif [ "${i^^}" = "U" ]
+	then
+		dot;dot;line;
+	elif [ "${i^^}" = "V" ]
+	then
+		dot;dot;dot;line;
+	elif [ "${i^^}" = "W" ]
+	then
+		dot;line;line;
+	elif [ "${i^^}" = "X" ]
+	then
+		line;dot;dot;line;
+	elif [ "${i^^}" = "Y" ]
+	then
+		line;dot;line;line;
+	elif [ "${i^^}" = "Z" ]
+	then
+		line;line;dot;dot;
+	fi
+done;
